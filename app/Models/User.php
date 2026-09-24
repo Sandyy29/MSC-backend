@@ -17,6 +17,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'department_role',
+        'manager_id',
+        'branch',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -29,6 +33,24 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function teamMembers()
+    {
+        return $this->hasMany(User::class, 'manager_id');
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(MisTask::class, 'employee_id');
+    }
+
+
 }

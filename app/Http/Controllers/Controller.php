@@ -12,14 +12,13 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Server(
     url: "/api",
-    description: "API Server"
+    description: "API Base URL"
 )]
 #[OA\SecurityScheme(
     securityScheme: "bearerAuth",
     type: "http",
     scheme: "bearer",
-    bearerFormat: "JWT",
-    description: "Enter your bearer token in format: Bearer <token>"
+    description: "Enter ONLY your personal access token (e.g., 1|xxxx...)"
 )]
 abstract class Controller
 {
