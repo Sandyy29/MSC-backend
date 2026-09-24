@@ -235,16 +235,16 @@ return [
                 /*
                  * Examples of Securities
                  */
+                /*
                 [
-                    /*
                     'oauth2_security_example' => [
                         'read',
                         'write'
                     ],
 
                     'passport' => []
-                    */
                 ],
+                */
             ],
         ],
 
@@ -313,7 +313,7 @@ return [
                 /*
                  * If set to true, it persists authorization data, and it would not be lost on browser close/refresh
                  */
-                'persist_authorization' => env('L5_SWAGGER_UI_PERSIST_AUTHORIZATION', false),
+                'persist_authorization' => true,
 
                 'oauth2' => [
                     /*

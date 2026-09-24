@@ -11,10 +11,719 @@
     "servers": [
         {
             "url": "/api",
-            "description": "API Server"
+            "description": "API Base URL"
         }
     ],
     "paths": {
+        "/dashboard/hr": {
+            "get": {
+                "tags": [
+                    "HR Management"
+                ],
+                "summary": "Get HR Dashboard Stats",
+                "operationId": "f3ce716d7a64a9775b25acd005a30ff2",
+                "responses": {
+                    "200": {
+                        "description": "HR dashboard statistics"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/manager/dashboard": {
+            "get": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Get Manager Dashboard Stats",
+                "operationId": "75a65c7ab9d480c82f28ee589aec04c3",
+                "responses": {
+                    "200": {
+                        "description": "Manager dashboard statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "employees": {
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "active": {
+                                                            "type": "integer",
+                                                            "example": 4
+                                                        },
+                                                        "inactive": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "tasks": {
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        },
+                                                        "pending": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "in_progress": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "completed": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Unauthorized access"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/employee/dashboard": {
+            "get": {
+                "tags": [
+                    "Employee Management"
+                ],
+                "summary": "Get Employee Dashboard Stats",
+                "operationId": "010454ac73c954b66a194fbb4749e2e5",
+                "responses": {
+                    "200": {
+                        "description": "Employee dashboard data retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Employee dashboard data retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "employee": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Employee Name"
+                                                        },
+                                                        "username": {
+                                                            "type": "string",
+                                                            "example": "employee1"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "employee@example.com"
+                                                        },
+                                                        "department_role": {
+                                                            "type": "string",
+                                                            "example": "Software Developer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "statistics": {
+                                                    "properties": {
+                                                        "total_tasks": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "pending_tasks": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "in_progress_tasks": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "completed_tasks": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "overdue_tasks": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Unauthorized access"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/manager/employees": {
+            "get": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "List all employees under the authenticated manager",
+                "operationId": "8817bd43af00e162bb50ee092ab16af4",
+                "responses": {
+                    "200": {
+                        "description": "List of employees"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/manager/employees/{id}": {
+            "get": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Get a specific employee's details",
+                "operationId": "18ee685b5fe254a61e0aab32db07288b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee details"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Unauthorized access to this employee"
+                    },
+                    "404": {
+                        "description": "Employee not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Update a specific employee's details",
+                "operationId": "1b7f63871f0569d0bfb2fe9477d7c78a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "department_role": {
+                                        "type": "string"
+                                    },
+                                    "branch": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Employee updated"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Unauthorized access to this employee"
+                    },
+                    "404": {
+                        "description": "Employee not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Deactivate an employee (soft delete)",
+                "operationId": "2f9106f79a464b16ac0b856112b23414",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee deactivated"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Unauthorized access to this employee"
+                    },
+                    "404": {
+                        "description": "Employee not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reports/hr-summary": {
+            "get": {
+                "tags": [
+                    "HR Management"
+                ],
+                "summary": "Get HR reports and analytics summary",
+                "operationId": "6614834dc9510af8b4441c9e848b1969",
+                "responses": {
+                    "200": {
+                        "description": "Summary stats"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/tasks": {
+            "get": {
+                "tags": [
+                    "Task Management"
+                ],
+                "summary": "List all tasks",
+                "description": "HR/Manager can view tasks according to backend authorization/filtering.",
+                "operationId": "7786da811325606208249ebc8d393d9a",
+                "parameters": [
+                    {
+                        "name": "branch",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of tasks"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Task Management"
+                ],
+                "summary": "Create a new task",
+                "description": "Manager creates and assigns a task to an employee.",
+                "operationId": "a737e990cef5769592bc41ee6a62f7f1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "title",
+                                    "description",
+                                    "priority",
+                                    "due_date"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Develop login feature"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Implement JWT auth"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Low",
+                                            "Medium",
+                                            "High"
+                                        ]
+                                    },
+                                    "due_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Task created"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/employee/tasks": {
+            "get": {
+                "tags": [
+                    "Task Management"
+                ],
+                "summary": "Get tasks assigned to the authenticated employee",
+                "operationId": "3d68976967ad17810b8136b8938ef62c",
+                "responses": {
+                    "200": {
+                        "description": "List of tasks"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/tasks/{id}": {
+            "put": {
+                "tags": [
+                    "Task Management"
+                ],
+                "summary": "Update task progress and status",
+                "description": "Employee updates ONLY their assigned task's status and progress.",
+                "operationId": "2a0a8c212f84263f9a249469557b2539",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Pending",
+                                            "In Progress",
+                                            "Completed"
+                                        ]
+                                    },
+                                    "progress": {
+                                        "type": "integer",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Task updated"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "List users (employees/managers) with filters",
+                "description": "Accessible according to existing backend authorization.",
+                "operationId": "7208c29037df2b8bb02499ba39ed8a78",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "HR",
+                                "MANAGER",
+                                "EMPLOYEE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "departmentRole",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "branch",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of users"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Create a new Manager or Employee",
+                "description": "- HR can create MANAGER users.\n- Manager can create EMPLOYEE users.\n- Employee cannot create users.",
+                "operationId": "262eb5ca1fdea354023c0a8870442c1e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "username",
+                                    "email",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Karthik Manager"
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "karthik"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "karthik@company.com"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "MANAGER",
+                                            "EMPLOYEE"
+                                        ]
+                                    },
+                                    "departmentRole": {
+                                        "type": "string",
+                                        "example": "Development"
+                                    },
+                                    "managerId": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "branch": {
+                                        "type": "string",
+                                        "example": "Madurai"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/{id}/toggle-status": {
+            "put": {
+                "tags": [
+                    "HR Management"
+                ],
+                "summary": "Activate or deactivate a user",
+                "operationId": "deb475a72b08af9b493514e807a085e4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status toggled"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/login": {
             "post": {
                 "tags": [
@@ -213,13 +922,32 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "description": "Enter your bearer token in format: Bearer <token>",
-                "bearerFormat": "JWT",
+                "description": "Enter ONLY your personal access token (e.g., 1|xxxx...)",
                 "scheme": "bearer"
             }
         }
     },
     "tags": [
+        {
+            "name": "HR Management",
+            "description": "Organization-wide reports & analytics"
+        },
+        {
+            "name": "Manager Management",
+            "description": "APIs for Managers to manage employees"
+        },
+        {
+            "name": "Employee Management",
+            "description": "Employee Dashboard stats"
+        },
+        {
+            "name": "Task Management",
+            "description": "Organization-wide task monitoring"
+        },
+        {
+            "name": "User Management",
+            "description": "Endpoints for listing and creating users"
+        },
         {
             "name": "Authentication",
             "description": "Endpoints for User Login, Profile, and Logout"
