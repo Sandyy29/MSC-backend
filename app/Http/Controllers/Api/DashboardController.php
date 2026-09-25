@@ -25,12 +25,22 @@ class DashboardController extends Controller
     public function hrDashboard()
     {
         $managers = User::where('role', 'MANAGER')->with('teamMembers')->get();
+        $employees = User::where('role', 'EMPLOYEE')->get();
+
         $totalManagers = $managers->count();
         $activeManagers = $managers->where('is_active', true)->count();
         
+        $totalEmployees = $employees->count();
+        $activeEmployees = $employees->where('is_active', true)->count();
+        
+        $inactiveUsers = $managers->where('is_active', false)->count() + $employees->where('is_active', false)->count();
+
         $allTasks = MisTask::all();
         $totalTasks = $allTasks->count();
         $completedTasks = $allTasks->where('status', 'Completed')->count();
+        $pendingTasks = $allTasks->where('status', 'Pending')->count();
+        $inProgressTasks = $allTasks->where('status', 'In Progress')->count();
+        
         $overallCompletion = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
         
         $monthlyMis = MisTask::whereMonth('created_at', now()->month)
@@ -55,7 +65,13 @@ class DashboardController extends Controller
         return response()->json([
             'totalManagers' => $totalManagers,
             'activeManagers' => $activeManagers,
+            'totalEmployees' => $totalEmployees,
+            'activeEmployees' => $activeEmployees,
+            'inactiveUsers' => $inactiveUsers,
             'totalTasks' => $totalTasks,
+            'pendingTasks' => $pendingTasks,
+            'inProgressTasks' => $inProgressTasks,
+            'completedTasks' => $completedTasks,
             'overallCompletion' => $overallCompletion,
             'monthlyMis' => $monthlyMis,
             'managers' => $managersData
@@ -226,6 +242,49 @@ class DashboardController extends Controller
                     'overdue_tasks' => $overdueTasks
                 ]
             ]
+        ]);
+    }
+
+    public function managerPerformance(\Illuminate\Http\Request $request)
+    {
+        $manager = $request->user();
+        
+        $employees = \App\Models\User::where('manager_id', $manager->id)
+            ->where('role', 'EMPLOYEE')
+            ->get();
+            
+        $allTasks = \App\Models\MisTask::where('manager_id', $manager->id)->get();
+            
+        $data = [];
+        
+        foreach ($employees as $employee) {
+            $tasks = $allTasks->where('employee_id', $employee->id);
+            
+            $totalTasks = $tasks->count();
+            $pendingTasks = $tasks->where('status', 'Pending')->count();
+            $inProgressTasks = $tasks->where('status', 'In Progress')->count();
+            $completedTasks = $tasks->where('status', 'Completed')->count();
+            
+            $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
+            
+            $data[] = [
+                'id' => $employee->id,
+                'name' => $employee->name,
+                'username' => $employee->username,
+                'email' => $employee->email,
+                'departmentRole' => $employee->department_role,
+                'branch' => $employee->branch,
+                'totalTasks' => $totalTasks,
+                'pendingTasks' => $pendingTasks,
+                'inProgressTasks' => $inProgressTasks,
+                'completedTasks' => $completedTasks,
+                'progressPercentage' => $progressPercentage
+            ];
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => $data
         ]);
     }
 }

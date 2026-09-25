@@ -165,4 +165,34 @@ class ManagerEmployeeController extends Controller
 
         return response()->json(['message' => 'Employee deactivated successfully']);
     }
+
+        public function store(Request $request)
+    {
+        $manager = $request->user();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'username' => 'required|string|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:employee,EMPLOYEE',
+            'departmentRole' => 'nullable|string',
+            'branch' => 'nullable|string',
+        ]);
+
+        $employee = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'username' => $validated['username'],
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'role' => 'EMPLOYEE',
+            'department_role' => $validated['departmentRole'] ?? null,
+            'branch' => $validated['branch'] ?? null,
+            'manager_id' => $manager->id,
+            'is_active' => true,
+        ]);
+
+        return response()->json($employee->only(['id', 'name', 'username', 'email', 'role', 'department_role', 'branch', 'manager_id', 'is_active']), 201);
+    }
 }
+

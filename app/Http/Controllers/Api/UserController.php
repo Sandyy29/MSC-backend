@@ -33,9 +33,9 @@ class UserController extends Controller
 
         $user = $request->user();
         
-        if ($user->role === 'EMPLOYEE') {
+        if (strtoupper($user->role) === 'EMPLOYEE') {
             $query->where('id', $user->id);
-        } elseif ($user->role === 'MANAGER') {
+        } elseif (strtoupper($user->role) === 'MANAGER') {
             $query->where(function($q) use ($user) {
                 $q->where('manager_id', $user->id)
                   ->orWhere('id', $user->id);
@@ -105,11 +105,11 @@ class UserController extends Controller
         $user = $request->user();
 
         // Enforce role-based creation rules
-        if ($user->role === 'HR' && $request->role !== 'MANAGER') {
+        if (strtoupper($user->role) === 'HR' && strtoupper($request->role) !== 'MANAGER') {
             return response()->json(['message' => 'HR can only create Managers.'], 403);
         }
         
-        if ($user->role === 'MANAGER' && $request->role !== 'EMPLOYEE') {
+        if (strtoupper($user->role) === 'MANAGER' && strtoupper($request->role) !== 'EMPLOYEE') {
             return response()->json(['message' => 'Managers can only create Employees.'], 403);
         }
 
@@ -120,11 +120,12 @@ class UserController extends Controller
             'role' => 'required|in:MANAGER,EMPLOYEE',
             'departmentRole' => 'nullable|string',
             'branch' => 'nullable|string',
+            'password' => 'required_if:role,MANAGER|string|min:6',
         ]);
 
         // Automatically assign manager_id if created by a Manager
         $managerId = null;
-        if ($user->role === 'MANAGER') {
+        if (strtoupper($user->role) === 'MANAGER') {
             $managerId = $user->id;
         }
 
@@ -137,7 +138,7 @@ class UserController extends Controller
             'manager_id' => $managerId,
             'branch' => $validated['branch'] ?? null,
             'is_active' => true,
-            'password' => Hash::make(Str::random(12)),
+            'password' => $request->has('password') ? Hash::make($validated['password']) : Hash::make(Str::random(12)),
         ]);
 
         return response()->json([
@@ -169,5 +170,54 @@ class UserController extends Controller
             'message' => 'Status updated successfully',
             'data' => $user,
         ]);
+    }
+
+    #[OA\Delete(
+        path: "/users/{id}",
+        summary: "Delete a manager",
+        security: [["bearerAuth" => []]],
+        tags: ["HR Management"],
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Manager deleted successfully"),
+            new OA\Response(response: 400, description: "Cannot delete manager due to existing relationships"),
+            new OA\Response(response: 403, description: "Cannot delete this user"),
+            new OA\Response(response: 404, description: "User not found")
+        ]
+    )]
+    public function destroy(Request $request, $id)
+    {
+        $user = User::where('id', $id)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        if (strtoupper($user->role) !== 'MANAGER') {
+            return response()->json(['message' => 'Cannot delete non-manager users'], 403);
+        }
+
+        // Check for related employees (team members)
+        if ($user->teamMembers()->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete manager because they have employees assigned to them.'
+            ], 400);
+        }
+
+        // Check for related tasks created by this manager
+        $hasTasks = \App\Models\MisTask::where('manager_id', $user->id)->exists();
+        if ($hasTasks) {
+            return response()->json([
+                'message' => 'Cannot delete manager because they have associated tasks.'
+            ], 400);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Manager deleted successfully'
+        ], 200);
     }
 }
