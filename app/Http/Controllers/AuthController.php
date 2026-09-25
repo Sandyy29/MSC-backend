@@ -163,4 +163,57 @@ class AuthController extends Controller
             'user' => $request->user()
         ]);
     }
+
+    #[OA\Put(
+        path: "/me",
+        summary: "Update current authenticated user details",
+        security: [["bearerAuth" => []]],
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "HR Admin"),
+                    new OA\Property(property: "email", type: "string", example: "hr@example.com"),
+                    new OA\Property(property: "password", type: "string", format: "password", example: "newpassword123"),
+                    new OA\Property(property: "password_confirmation", type: "string", format: "password", example: "newpassword123")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Profile updated successfully"),
+            new OA\Response(response: 422, description: "Validation error"),
+            new OA\Response(response: 401, description: "Unauthenticated")
+        ]
+    )]
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ]);
+    }
 }

@@ -12,10 +12,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me', [AuthController::class, 'updateProfile']);
 
     Route::middleware('role:hr')->group(function () {
         Route::get('/dashboard/hr', [DashboardController::class, 'hrDashboard']);
         Route::put('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
         Route::get('/reports/hr-summary', [ReportController::class, 'hrSummary']);
     });
 
@@ -34,8 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:manager')->group(function () {
+        Route::get('/manager/reports', [\App\Http\Controllers\Api\ReportController::class, 'managerReports']);
+        Route::get('/manager/performance', [\App\Http\Controllers\Api\DashboardController::class, 'managerPerformance']);
         Route::get('/manager/dashboard', [DashboardController::class, 'managerDashboard']);
         Route::get('/manager/employees', [\App\Http\Controllers\Api\ManagerEmployeeController::class, 'index']);
+        Route::post('/manager/employees', [\App\Http\Controllers\Api\ManagerEmployeeController::class, 'store']);
         Route::get('/manager/employees/{id}', [\App\Http\Controllers\Api\ManagerEmployeeController::class, 'show']);
         Route::put('/manager/employees/{id}', [\App\Http\Controllers\Api\ManagerEmployeeController::class, 'update']);
         Route::delete('/manager/employees/{id}', [\App\Http\Controllers\Api\ManagerEmployeeController::class, 'destroy']);

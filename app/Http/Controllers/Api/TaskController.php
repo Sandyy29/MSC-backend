@@ -63,6 +63,9 @@ class TaskController extends Controller
                 'percentage' => $t->percentage,
                 'progress' => $t->progress,
                 'timeSpent' => $t->time_spent,
+                'pendingReason' => $t->pending_reason,
+                'remarks' => $t->remarks,
+                'createdAt' => $t->created_at,
             ];
         });
 
