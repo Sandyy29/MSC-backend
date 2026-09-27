@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\MisTask;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class EmployeeTaskFlowTest extends TestCase
 {
@@ -54,7 +54,7 @@ class EmployeeTaskFlowTest extends TestCase
             'date' => '2024-01-01',
             'task_activity' => 'Task 1',
             'status' => 'Pending',
-            'progress' => 0
+            'progress' => 0,
         ]);
 
         $this->task2 = MisTask::create([
@@ -68,7 +68,7 @@ class EmployeeTaskFlowTest extends TestCase
             'date' => '2024-01-01',
             'task_activity' => 'Task 2',
             'status' => 'In Progress',
-            'progress' => 50
+            'progress' => 50,
         ]);
     }
 
@@ -126,8 +126,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_updates_own_task_status()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'status' => 'In Progress'
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'status' => 'In Progress',
         ]);
         $response->assertStatus(200);
         $this->assertEquals('In Progress', $this->task1->fresh()->status);
@@ -137,8 +137,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_updates_own_task_progress()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'progress' => 30
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'progress' => 30,
         ]);
         $response->assertStatus(200);
         $this->assertEquals(30, $this->task1->fresh()->progress);
@@ -148,9 +148,9 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_updates_status_and_progress_together()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
             'status' => 'Completed',
-            'progress' => 100
+            'progress' => 100,
         ]);
         $response->assertStatus(200);
         $task = $this->task1->fresh();
@@ -162,9 +162,9 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_cannot_update_another_employees_task()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task2->id, [
+        $response = $this->putJson('/api/tasks/'.$this->task2->id, [
             'status' => 'Completed',
-            'progress' => 100
+            'progress' => 100,
         ]);
         $response->assertStatus(403);
     }
@@ -173,8 +173,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_cannot_change_employee_id()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'employee_id' => $this->employeeUser2->id
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'employee_id' => $this->employeeUser2->id,
         ]);
         $response->assertStatus(200);
         $this->assertEquals($this->employeeUser1->id, $this->task1->fresh()->employee_id);
@@ -184,8 +184,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_employee_cannot_change_manager_id()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'manager_id' => $this->managerUser2->id
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'manager_id' => $this->managerUser2->id,
         ]);
         $response->assertStatus(200);
         $this->assertEquals($this->managerUser1->id, $this->task1->fresh()->manager_id);
@@ -259,8 +259,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_invalid_progress_below_zero_returns_422()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'progress' => -10
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'progress' => -10,
         ]);
         $response->assertStatus(422);
     }
@@ -269,8 +269,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_invalid_progress_above_100_returns_422()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'progress' => 110
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'progress' => 110,
         ]);
         $response->assertStatus(422);
     }
@@ -279,8 +279,8 @@ class EmployeeTaskFlowTest extends TestCase
     public function test_invalid_status_returns_422()
     {
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $this->task1->id, [
-            'status' => 'INVALID_STATUS'
+        $response = $this->putJson('/api/tasks/'.$this->task1->id, [
+            'status' => 'INVALID_STATUS',
         ]);
         $response->assertStatus(422);
     }

@@ -15,8 +15,10 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        'phone',
         'password',
         'role',
+        'designation',
         'department_role',
         'manager_id',
         'branch',
@@ -51,6 +53,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(MisTask::class, 'employee_id');
     }
-
-
 }

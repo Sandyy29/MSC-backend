@@ -11,11 +11,11 @@ class CheckRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!$request->user() || !in_array(strtoupper($request->user()->role), array_map('strtoupper', $roles))) {
+        if (! $request->user() || ! in_array(strtoupper($request->user()->role), array_map('strtoupper', $roles))) {
             return response()->json(['message' => 'Unauthorized. Insufficient permissions.'], 403);
         }
 
