@@ -10,7 +10,8 @@ class LogHeaders
 {
     public function handle(Request $request, Closure $next)
     {
-        Log::info('Request to ' . $request->path(), $request->headers->all());
+        Log::info('Request to '.$request->path(), $request->headers->all());
+
         return $next($request);
     }
 }

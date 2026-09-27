@@ -208,6 +208,109 @@
                 ]
             }
         },
+        "/manager/employees/bulk/validate": {
+            "post": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Validate bulk employee upload",
+                "operationId": "f7b4ede300448dd05b4e275646d7200b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "CSV or XLSX file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Validation results"
+                    },
+                    "422": {
+                        "description": "Invalid file format or validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/manager/employees/bulk": {
+            "post": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Process bulk employee upload",
+                "operationId": "048aba27a46b2cd1857582e687fe6b7b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "CSV or XLSX file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload successful"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/manager/employees/bulk/template": {
+            "get": {
+                "tags": [
+                    "Manager Management"
+                ],
+                "summary": "Download bulk employee upload template",
+                "operationId": "d88cc6d08051638cf41dfe82ddfe6a14",
+                "responses": {
+                    "200": {
+                        "description": "Template downloaded"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/manager/employees": {
             "get": {
                 "tags": [
@@ -730,6 +833,44 @@
                 "responses": {
                     "200": {
                         "description": "Status toggled"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "delete": {
+                "tags": [
+                    "HR Management"
+                ],
+                "summary": "Delete a manager",
+                "operationId": "b3d28da5dc9de7fc1bd425f93b54ff7b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Manager deleted successfully"
+                    },
+                    "400": {
+                        "description": "Cannot delete manager due to existing relationships"
+                    },
+                    "403": {
+                        "description": "Cannot delete this user"
                     },
                     "404": {
                         "description": "User not found"

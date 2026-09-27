@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\MisTask;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\MisTask;
 
 class ManagerDashboardTest extends TestCase
 {
@@ -14,17 +14,17 @@ class ManagerDashboardTest extends TestCase
     public function test_manager_can_get_dashboard()
     {
         $manager = User::factory()->create(['role' => 'MANAGER']);
-        
+
         $response = $this->actingAs($manager, 'sanctum')->getJson('/api/manager/dashboard');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'employees' => ['total', 'active', 'inactive'],
-                         'tasks' => ['total', 'pending', 'in_progress', 'completed']
-                     ]
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'employees' => ['total', 'active', 'inactive'],
+                    'tasks' => ['total', 'pending', 'in_progress', 'completed'],
+                ],
+            ]);
     }
 
     public function test_manager_gets_only_their_employee_count()
@@ -65,7 +65,7 @@ class ManagerDashboardTest extends TestCase
         MisTask::factory()->count(5)->create(['manager_id' => $manager2->id, 'employee_id' => $employee->id, 'status' => 'Pending']);
 
         $response = $this->actingAs($manager1, 'sanctum')->getJson('/api/manager/dashboard');
-        
+
         $response->assertStatus(200);
         $data = $response->json('data.tasks');
 
@@ -81,7 +81,7 @@ class ManagerDashboardTest extends TestCase
         $manager2 = User::factory()->create(['role' => 'MANAGER']);
 
         User::factory()->create(['role' => 'EMPLOYEE', 'manager_id' => $manager1->id]);
-        
+
         $response = $this->actingAs($manager2, 'sanctum')->getJson('/api/manager/dashboard');
         $response->assertStatus(200);
         $this->assertEquals(0, $response->json('data.employees.total'));

@@ -3,37 +3,38 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\MisTask;
+use App\Models\User;
+use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: "HR Management", description: "Organization-wide reports & analytics")]
+#[OA\Tag(name: 'HR Management', description: 'Organization-wide reports & analytics')]
 class ReportController extends Controller
 {
     #[OA\Get(
-        path: "/reports/hr-summary",
-        summary: "Get HR reports and analytics summary",
-        security: [["bearerAuth" => []]],
-        tags: ["HR Management"],
+        path: '/reports/hr-summary',
+        summary: 'Get HR reports and analytics summary',
+        security: [['bearerAuth' => []]],
+        tags: ['HR Management'],
         parameters: [
-            new OA\Parameter(name: "start_date", in: "query", schema: new OA\Schema(type: "string", format: "date")),
-            new OA\Parameter(name: "end_date", in: "query", schema: new OA\Schema(type: "string", format: "date"))
+            new OA\Parameter(name: 'start_date', in: 'query', schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'end_date', in: 'query', schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
-            new OA\Response(response: 200, description: "Summary stats")
+            new OA\Response(response: 200, description: 'Summary stats'),
         ]
     )]
-    public function hrSummary(\Illuminate\Http\Request $request)
+    public function hrSummary(Request $request)
     {
         $employees = User::where('role', 'EMPLOYEE')->get();
         $managers = User::where('role', 'MANAGER')->get();
-        
+
         $taskQuery = MisTask::with(['employee:id,name,department_role', 'manager:id,name']);
-        
+
         if ($request->has('start_date') && $request->has('end_date')) {
             $taskQuery->whereBetween('date', [$request->start_date, $request->end_date]);
         }
-        
+
         $tasks = $taskQuery->get();
 
         $completedTasksCount = $tasks->whereIn('status', ['Completed', 'Approved by Manager', 'Closed'])->count();
@@ -49,12 +50,14 @@ class ReportController extends Controller
             return optional($t->employee)->department_role ?? 'Unassigned';
         })->map(function ($group) {
             $completed = $group->where('percentage', 100)->count();
+
             return $group->count() ? round(($completed / $group->count()) * 100) : 0;
         });
 
         $managerPerformance = $tasks->groupBy('manager_id')->map(function ($group) {
             $manager = $group->first()->manager;
             $completed = $group->whereIn('status', ['Completed', 'Approved by Manager', 'Closed'])->count();
+
             return [
                 'id' => optional($manager)->id,
                 'name' => optional($manager)->name ?? 'Unknown',
@@ -67,6 +70,7 @@ class ReportController extends Controller
         $employeePerformance = $tasks->groupBy('employee_id')->map(function ($group) {
             $employee = $group->first()->employee;
             $completed = $group->whereIn('status', ['Completed', 'Approved by Manager', 'Closed'])->count();
+
             return [
                 'id' => optional($employee)->id,
                 'name' => optional($employee)->name ?? 'Unknown',
@@ -98,36 +102,36 @@ class ReportController extends Controller
         ]);
     }
 
-    public function managerReports(\Illuminate\Http\Request $request)
+    public function managerReports(Request $request)
     {
         $manager = $request->user();
-        
-        $employees = \App\Models\User::where('manager_id', $manager->id)
+
+        $employees = User::where('manager_id', $manager->id)
             ->where('role', 'EMPLOYEE')
             ->get();
-            
-        $tasks = \App\Models\MisTask::where('manager_id', $manager->id)->get();
-        
+
+        $tasks = MisTask::where('manager_id', $manager->id)->get();
+
         $totalEmployees = $employees->count();
         $totalTasks = $tasks->count();
         $pendingTasks = $tasks->where('status', 'Pending')->count();
         $inProgressTasks = $tasks->where('status', 'In Progress')->count();
         $completedTasks = $tasks->where('status', 'Completed')->count();
-        
+
         $overallCompletionPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
-        
+
         $employeeData = [];
-        
+
         foreach ($employees as $employee) {
             $empTasks = $tasks->where('employee_id', $employee->id);
-            
+
             $empTotalTasks = $empTasks->count();
             $empPendingTasks = $empTasks->where('status', 'Pending')->count();
             $empInProgressTasks = $empTasks->where('status', 'In Progress')->count();
             $empCompletedTasks = $empTasks->where('status', 'Completed')->count();
-            
+
             $empCompletionPercentage = $empTotalTasks > 0 ? round(($empCompletedTasks / $empTotalTasks) * 100) : 0;
-            
+
             $employeeData[] = [
                 'id' => $employee->id,
                 'name' => $employee->name,
@@ -136,22 +140,23 @@ class ReportController extends Controller
                 'pendingTasks' => $empPendingTasks,
                 'inProgressTasks' => $empInProgressTasks,
                 'completedTasks' => $empCompletedTasks,
-                'completionPercentage' => $empCompletionPercentage
+                'completionPercentage' => $empCompletionPercentage,
             ];
         }
-        
+
         // Also provide recent activity for the UI
-        $recentTasks = $tasks->sortByDesc('updated_at')->take(5)->map(function($t) use ($employees) {
+        $recentTasks = $tasks->sortByDesc('updated_at')->take(5)->map(function ($t) use ($employees) {
             $emp = $employees->where('id', $t->employee_id)->first();
+
             return [
                 'id' => $t->id,
                 'employeeName' => $emp ? $emp->name : 'Unknown',
                 'taskActivity' => $t->task_activity,
                 'status' => $t->status,
-                'percentage' => $t->percentage
+                'percentage' => $t->percentage,
             ];
         })->values();
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -161,11 +166,11 @@ class ReportController extends Controller
                     'pendingTasks' => $pendingTasks,
                     'inProgressTasks' => $inProgressTasks,
                     'completedTasks' => $completedTasks,
-                    'completionPercentage' => $overallCompletionPercentage
+                    'completionPercentage' => $overallCompletionPercentage,
                 ],
                 'employees' => $employeeData,
-                'recentActivity' => $recentTasks
-            ]
+                'recentActivity' => $recentTasks,
+            ],
         ]);
     }
 }

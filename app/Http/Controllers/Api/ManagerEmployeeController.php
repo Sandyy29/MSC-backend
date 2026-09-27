@@ -3,21 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: "Manager Management", description: "APIs for Managers to manage employees")]
+#[OA\Tag(name: 'Manager Management', description: 'APIs for Managers to manage employees')]
 class ManagerEmployeeController extends Controller
 {
     #[OA\Get(
-        path: "/manager/employees",
-        summary: "List all employees under the authenticated manager",
-        security: [["bearerAuth" => []]],
-        tags: ["Manager Management"],
+        path: '/manager/employees',
+        summary: 'List all employees under the authenticated manager',
+        security: [['bearerAuth' => []]],
+        tags: ['Manager Management'],
         responses: [
-            new OA\Response(response: 200, description: "List of employees"),
-            new OA\Response(response: 401, description: "Unauthenticated")
+            new OA\Response(response: 200, description: 'List of employees'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
         ]
     )]
     public function index(Request $request)
@@ -25,25 +26,25 @@ class ManagerEmployeeController extends Controller
         $manager = $request->user();
 
         $employees = User::where('manager_id', $manager->id)
-                         ->where('role', 'EMPLOYEE')
-                         ->get(['id', 'name', 'username', 'email', 'role', 'department_role', 'branch', 'is_active', 'manager_id']);
+            ->where('role', 'EMPLOYEE')
+            ->get(['id', 'name', 'username', 'email', 'role', 'department_role', 'branch', 'is_active', 'manager_id']);
 
         return response()->json($employees);
     }
 
     #[OA\Get(
-        path: "/manager/employees/{id}",
+        path: '/manager/employees/{id}',
         summary: "Get a specific employee's details",
-        security: [["bearerAuth" => []]],
-        tags: ["Manager Management"],
+        security: [['bearerAuth' => []]],
+        tags: ['Manager Management'],
         parameters: [
-            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: "Employee details"),
-            new OA\Response(response: 401, description: "Unauthenticated"),
-            new OA\Response(response: 403, description: "Unauthorized access to this employee"),
-            new OA\Response(response: 404, description: "Employee not found")
+            new OA\Response(response: 200, description: 'Employee details'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Unauthorized access to this employee'),
+            new OA\Response(response: 404, description: 'Employee not found'),
         ]
     )]
     public function show(Request $request, $id)
@@ -52,7 +53,7 @@ class ManagerEmployeeController extends Controller
 
         $employee = User::where('id', $id)->first();
 
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['message' => 'Employee not found'], 404);
         }
 
@@ -68,31 +69,31 @@ class ManagerEmployeeController extends Controller
     }
 
     #[OA\Put(
-        path: "/manager/employees/{id}",
+        path: '/manager/employees/{id}',
         summary: "Update a specific employee's details",
-        security: [["bearerAuth" => []]],
-        tags: ["Manager Management"],
+        security: [['bearerAuth' => []]],
+        tags: ['Manager Management'],
         parameters: [
-            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: "name", type: "string"),
-                    new OA\Property(property: "email", type: "string"),
-                    new OA\Property(property: "department_role", type: "string"),
-                    new OA\Property(property: "branch", type: "string"),
-                    new OA\Property(property: "is_active", type: "boolean")
+                    new OA\Property(property: 'name', type: 'string'),
+                    new OA\Property(property: 'email', type: 'string'),
+                    new OA\Property(property: 'department_role', type: 'string'),
+                    new OA\Property(property: 'branch', type: 'string'),
+                    new OA\Property(property: 'is_active', type: 'boolean'),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: "Employee updated"),
-            new OA\Response(response: 401, description: "Unauthenticated"),
-            new OA\Response(response: 403, description: "Unauthorized access to this employee"),
-            new OA\Response(response: 404, description: "Employee not found"),
-            new OA\Response(response: 422, description: "Validation error")
+            new OA\Response(response: 200, description: 'Employee updated'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Unauthorized access to this employee'),
+            new OA\Response(response: 404, description: 'Employee not found'),
+            new OA\Response(response: 422, description: 'Validation error'),
         ]
     )]
     public function update(Request $request, $id)
@@ -101,7 +102,7 @@ class ManagerEmployeeController extends Controller
 
         $employee = User::where('id', $id)->first();
 
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['message' => 'Employee not found'], 404);
         }
 
@@ -115,7 +116,7 @@ class ManagerEmployeeController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $employee->id,
+            'email' => 'sometimes|required|email|unique:users,email,'.$employee->id,
             'department_role' => 'nullable|string',
             'branch' => 'nullable|string',
             'is_active' => 'sometimes|boolean',
@@ -127,18 +128,18 @@ class ManagerEmployeeController extends Controller
     }
 
     #[OA\Delete(
-        path: "/manager/employees/{id}",
-        summary: "Deactivate an employee (soft delete)",
-        security: [["bearerAuth" => []]],
-        tags: ["Manager Management"],
+        path: '/manager/employees/{id}',
+        summary: 'Deactivate an employee (soft delete)',
+        security: [['bearerAuth' => []]],
+        tags: ['Manager Management'],
         parameters: [
-            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: "Employee deactivated"),
-            new OA\Response(response: 401, description: "Unauthenticated"),
-            new OA\Response(response: 403, description: "Unauthorized access to this employee"),
-            new OA\Response(response: 404, description: "Employee not found")
+            new OA\Response(response: 200, description: 'Employee deactivated'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Unauthorized access to this employee'),
+            new OA\Response(response: 404, description: 'Employee not found'),
         ]
     )]
     public function destroy(Request $request, $id)
@@ -147,7 +148,7 @@ class ManagerEmployeeController extends Controller
 
         $employee = User::where('id', $id)->first();
 
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['message' => 'Employee not found'], 404);
         }
 
@@ -166,10 +167,10 @@ class ManagerEmployeeController extends Controller
         return response()->json(['message' => 'Employee deactivated successfully']);
     }
 
-        public function store(Request $request)
+    public function store(Request $request)
     {
         $manager = $request->user();
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -184,7 +185,7 @@ class ManagerEmployeeController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'username' => $validated['username'],
-            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'password' => Hash::make($validated['password']),
             'role' => 'EMPLOYEE',
             'department_role' => $validated['departmentRole'] ?? null,
             'branch' => $validated['branch'] ?? null,
@@ -195,4 +196,3 @@ class ManagerEmployeeController extends Controller
         return response()->json($employee->only(['id', 'name', 'username', 'email', 'role', 'department_role', 'branch', 'manager_id', 'is_active']), 201);
     }
 }
-

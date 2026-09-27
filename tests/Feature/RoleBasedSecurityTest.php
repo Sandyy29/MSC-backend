@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\MisTask;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class RoleBasedSecurityTest extends TestCase
 {
@@ -77,6 +76,7 @@ class RoleBasedSecurityTest extends TestCase
             'username' => 'newmanager',
             'email' => 'newmanager@test.com',
             'role' => 'MANAGER',
+            'password' => 'password123',
         ]);
         $response->assertStatus(201);
     }
@@ -147,7 +147,7 @@ class RoleBasedSecurityTest extends TestCase
     public function test_manager_cannot_see_another_managers_employee()
     {
         Sanctum::actingAs($this->managerUser1);
-        $response = $this->getJson('/api/manager/employees/' . $this->employeeUser2->id);
+        $response = $this->getJson('/api/manager/employees/'.$this->employeeUser2->id);
         $response->assertStatus(403);
     }
 
@@ -217,7 +217,7 @@ class RoleBasedSecurityTest extends TestCase
         ]);
 
         Sanctum::actingAs($this->employeeUser1);
-        $response = $this->putJson('/api/tasks/' . $task2->id, [
+        $response = $this->putJson('/api/tasks/'.$task2->id, [
             'status' => 'Completed',
         ]);
         $response->assertStatus(403);

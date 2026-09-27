@@ -3,23 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\MisTask;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: "HR Management", description: "HR Dashboard stats")]
-#[OA\Tag(name: "Manager Management", description: "Manager Dashboard stats")]
-#[OA\Tag(name: "Employee Management", description: "Employee Dashboard stats")]
+#[OA\Tag(name: 'HR Management', description: 'HR Dashboard stats')]
+#[OA\Tag(name: 'Manager Management', description: 'Manager Dashboard stats')]
+#[OA\Tag(name: 'Employee Management', description: 'Employee Dashboard stats')]
 class DashboardController extends Controller
 {
     #[OA\Get(
-        path: "/dashboard/hr",
-        summary: "Get HR Dashboard Stats",
-        security: [["bearerAuth" => []]],
-        tags: ["HR Management"],
+        path: '/dashboard/hr',
+        summary: 'Get HR Dashboard Stats',
+        security: [['bearerAuth' => []]],
+        tags: ['HR Management'],
         responses: [
-            new OA\Response(response: 200, description: "HR dashboard statistics")
+            new OA\Response(response: 200, description: 'HR dashboard statistics'),
         ]
     )]
     public function hrDashboard()
@@ -29,10 +30,10 @@ class DashboardController extends Controller
 
         $totalManagers = $managers->count();
         $activeManagers = $managers->where('is_active', true)->count();
-        
+
         $totalEmployees = $employees->count();
         $activeEmployees = $employees->where('is_active', true)->count();
-        
+
         $inactiveUsers = $managers->where('is_active', false)->count() + $employees->where('is_active', false)->count();
 
         $allTasks = MisTask::all();
@@ -40,17 +41,17 @@ class DashboardController extends Controller
         $completedTasks = $allTasks->where('status', 'Completed')->count();
         $pendingTasks = $allTasks->where('status', 'Pending')->count();
         $inProgressTasks = $allTasks->where('status', 'In Progress')->count();
-        
+
         $overallCompletion = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
-        
+
         $monthlyMis = MisTask::whereMonth('created_at', now()->month)
-                            ->whereYear('created_at', now()->year)
-                            ->count();
-        
-        $managersData = $managers->map(function($manager) use ($allTasks) {
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        $managersData = $managers->map(function ($manager) use ($allTasks) {
             $teamIds = $manager->teamMembers->pluck('id')->toArray();
             $managerTasks = $allTasks->whereIn('employee_id', array_merge([$manager->id], $teamIds));
-            
+
             return [
                 'id' => $manager->id,
                 'name' => $manager->name,
@@ -61,7 +62,7 @@ class DashboardController extends Controller
                 'isActive' => (bool) $manager->is_active,
             ];
         });
-        
+
         return response()->json([
             'totalManagers' => $totalManagers,
             'activeManagers' => $activeManagers,
@@ -74,52 +75,52 @@ class DashboardController extends Controller
             'completedTasks' => $completedTasks,
             'overallCompletion' => $overallCompletion,
             'monthlyMis' => $monthlyMis,
-            'managers' => $managersData
+            'managers' => $managersData,
         ]);
     }
 
     #[OA\Get(
-        path: "/manager/dashboard",
-        summary: "Get Manager Dashboard Stats",
-        security: [["bearerAuth" => []]],
-        tags: ["Manager Management"],
+        path: '/manager/dashboard',
+        summary: 'Get Manager Dashboard Stats',
+        security: [['bearerAuth' => []]],
+        tags: ['Manager Management'],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Manager dashboard statistics",
+                description: 'Manager dashboard statistics',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
                         new OA\Property(
-                            property: "data",
-                            type: "object",
+                            property: 'data',
+                            type: 'object',
                             properties: [
                                 new OA\Property(
-                                    property: "employees",
-                                    type: "object",
+                                    property: 'employees',
+                                    type: 'object',
                                     properties: [
-                                        new OA\Property(property: "total", type: "integer", example: 5),
-                                        new OA\Property(property: "active", type: "integer", example: 4),
-                                        new OA\Property(property: "inactive", type: "integer", example: 1)
+                                        new OA\Property(property: 'total', type: 'integer', example: 5),
+                                        new OA\Property(property: 'active', type: 'integer', example: 4),
+                                        new OA\Property(property: 'inactive', type: 'integer', example: 1),
                                     ]
                                 ),
                                 new OA\Property(
-                                    property: "tasks",
-                                    type: "object",
+                                    property: 'tasks',
+                                    type: 'object',
                                     properties: [
-                                        new OA\Property(property: "total", type: "integer", example: 10),
-                                        new OA\Property(property: "pending", type: "integer", example: 2),
-                                        new OA\Property(property: "in_progress", type: "integer", example: 5),
-                                        new OA\Property(property: "completed", type: "integer", example: 3)
+                                        new OA\Property(property: 'total', type: 'integer', example: 10),
+                                        new OA\Property(property: 'pending', type: 'integer', example: 2),
+                                        new OA\Property(property: 'in_progress', type: 'integer', example: 5),
+                                        new OA\Property(property: 'completed', type: 'integer', example: 3),
                                     ]
-                                )
+                                ),
                             ]
-                        )
+                        ),
                     ]
                 )
             ),
-            new OA\Response(response: 401, description: "Unauthenticated"),
-            new OA\Response(response: 403, description: "Unauthorized access")
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Unauthorized access'),
         ]
     )]
     public function managerDashboard(Request $request)
@@ -145,63 +146,63 @@ class DashboardController extends Controller
                 'employees' => [
                     'total' => $employeeTotal,
                     'active' => $employeeActive,
-                    'inactive' => $employeeInactive
+                    'inactive' => $employeeInactive,
                 ],
                 'tasks' => [
                     'total' => $taskTotal,
                     'pending' => $taskPending,
                     'in_progress' => $taskInProgress,
-                    'completed' => $taskCompleted
-                ]
-            ]
+                    'completed' => $taskCompleted,
+                ],
+            ],
         ]);
     }
 
     #[OA\Get(
-        path: "/employee/dashboard",
-        summary: "Get Employee Dashboard Stats",
-        security: [["bearerAuth" => []]],
-        tags: ["Employee Management"],
+        path: '/employee/dashboard',
+        summary: 'Get Employee Dashboard Stats',
+        security: [['bearerAuth' => []]],
+        tags: ['Employee Management'],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Employee dashboard data retrieved successfully",
+                description: 'Employee dashboard data retrieved successfully',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "message", type: "string", example: "Employee dashboard data retrieved successfully"),
+                        new OA\Property(property: 'message', type: 'string', example: 'Employee dashboard data retrieved successfully'),
                         new OA\Property(
-                            property: "data",
-                            type: "object",
+                            property: 'data',
+                            type: 'object',
                             properties: [
                                 new OA\Property(
-                                    property: "employee",
-                                    type: "object",
+                                    property: 'employee',
+                                    type: 'object',
                                     properties: [
-                                        new OA\Property(property: "id", type: "integer", example: 1),
-                                        new OA\Property(property: "name", type: "string", example: "Employee Name"),
-                                        new OA\Property(property: "username", type: "string", example: "employee1"),
-                                        new OA\Property(property: "email", type: "string", example: "employee@example.com"),
-                                        new OA\Property(property: "department_role", type: "string", example: "Software Developer")
+                                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Employee Name'),
+                                        new OA\Property(property: 'username', type: 'string', example: 'employee1'),
+                                        new OA\Property(property: 'email', type: 'string', example: 'employee@example.com'),
+                                        new OA\Property(property: 'department_role', type: 'string', example: 'Software Developer'),
                                     ]
                                 ),
                                 new OA\Property(
-                                    property: "statistics",
-                                    type: "object",
+                                    property: 'statistics',
+                                    type: 'object',
                                     properties: [
-                                        new OA\Property(property: "total_tasks", type: "integer", example: 5),
-                                        new OA\Property(property: "pending_tasks", type: "integer", example: 2),
-                                        new OA\Property(property: "in_progress_tasks", type: "integer", example: 2),
-                                        new OA\Property(property: "completed_tasks", type: "integer", example: 1),
-                                        new OA\Property(property: "overdue_tasks", type: "integer", example: 0)
+                                        new OA\Property(property: 'total_tasks', type: 'integer', example: 5),
+                                        new OA\Property(property: 'pending_tasks', type: 'integer', example: 2),
+                                        new OA\Property(property: 'in_progress_tasks', type: 'integer', example: 2),
+                                        new OA\Property(property: 'completed_tasks', type: 'integer', example: 1),
+                                        new OA\Property(property: 'overdue_tasks', type: 'integer', example: 0),
                                     ]
-                                )
+                                ),
                             ]
-                        )
+                        ),
                     ]
                 )
             ),
-            new OA\Response(response: 401, description: "Unauthenticated"),
-            new OA\Response(response: 403, description: "Unauthorized access")
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Unauthorized access'),
         ]
     )]
     public function employeeDashboard(Request $request)
@@ -211,17 +212,17 @@ class DashboardController extends Controller
         // Task stats
         $taskQuery = MisTask::where('employee_id', $employee->id);
         $tasks = $taskQuery->get();
-        
+
         $totalTasks = $tasks->count();
         $pendingTasks = $tasks->where('status', 'Pending')->count();
         $inProgressTasks = $tasks->where('status', 'In Progress')->count();
         $completedTasks = $tasks->where('status', 'Completed')->count();
-        
+
         // Overdue calculation (Pending or In Progress, and due_date < today)
         $overdueTasks = $tasks->filter(function ($task) {
-            return in_array($task->status, ['Pending', 'In Progress']) && 
-                   $task->due_date && 
-                   \Carbon\Carbon::parse($task->due_date)->isPast();
+            return in_array($task->status, ['Pending', 'In Progress']) &&
+                   $task->due_date &&
+                   Carbon::parse($task->due_date)->isPast();
         })->count();
 
         return response()->json([
@@ -232,41 +233,41 @@ class DashboardController extends Controller
                     'name' => $employee->name,
                     'username' => $employee->username,
                     'email' => $employee->email,
-                    'department_role' => $employee->department_role
+                    'department_role' => $employee->department_role,
                 ],
                 'statistics' => [
                     'total_tasks' => $totalTasks,
                     'pending_tasks' => $pendingTasks,
                     'in_progress_tasks' => $inProgressTasks,
                     'completed_tasks' => $completedTasks,
-                    'overdue_tasks' => $overdueTasks
-                ]
-            ]
+                    'overdue_tasks' => $overdueTasks,
+                ],
+            ],
         ]);
     }
 
-    public function managerPerformance(\Illuminate\Http\Request $request)
+    public function managerPerformance(Request $request)
     {
         $manager = $request->user();
-        
-        $employees = \App\Models\User::where('manager_id', $manager->id)
+
+        $employees = User::where('manager_id', $manager->id)
             ->where('role', 'EMPLOYEE')
             ->get();
-            
-        $allTasks = \App\Models\MisTask::where('manager_id', $manager->id)->get();
-            
+
+        $allTasks = MisTask::where('manager_id', $manager->id)->get();
+
         $data = [];
-        
+
         foreach ($employees as $employee) {
             $tasks = $allTasks->where('employee_id', $employee->id);
-            
+
             $totalTasks = $tasks->count();
             $pendingTasks = $tasks->where('status', 'Pending')->count();
             $inProgressTasks = $tasks->where('status', 'In Progress')->count();
             $completedTasks = $tasks->where('status', 'Completed')->count();
-            
+
             $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
-            
+
             $data[] = [
                 'id' => $employee->id,
                 'name' => $employee->name,
@@ -278,13 +279,13 @@ class DashboardController extends Controller
                 'pendingTasks' => $pendingTasks,
                 'inProgressTasks' => $inProgressTasks,
                 'completedTasks' => $completedTasks,
-                'progressPercentage' => $progressPercentage
+                'progressPercentage' => $progressPercentage,
             ];
         }
-        
+
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data' => $data,
         ]);
     }
 }

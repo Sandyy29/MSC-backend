@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'department_role')) {
+            if (! Schema::hasColumn('users', 'department_role')) {
                 $table->string('department_role')->nullable();
             }
-            if (!Schema::hasColumn('users', 'manager_id')) {
+            if (! Schema::hasColumn('users', 'manager_id')) {
                 $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
             }
-            if (!Schema::hasColumn('users', 'branch')) {
+            if (! Schema::hasColumn('users', 'branch')) {
                 $table->string('branch')->nullable();
             }
-            if (!Schema::hasColumn('users', 'is_active')) {
+            if (! Schema::hasColumn('users', 'is_active')) {
                 $table->boolean('is_active')->default(true);
             }
-            if (!Schema::hasColumn('users', 'username')) {
+            if (! Schema::hasColumn('users', 'username')) {
                 $table->string('username')->unique()->nullable();
             }
         });
@@ -42,7 +42,7 @@ return new class extends Migration
                 'manager_id',
                 'branch',
                 'is_active',
-                'username'
+                'username',
             ]);
         });
     }

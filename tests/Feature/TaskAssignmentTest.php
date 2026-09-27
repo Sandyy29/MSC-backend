@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\MisTask;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TaskAssignmentTest extends TestCase
 {
@@ -15,15 +14,15 @@ class TaskAssignmentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->manager1 = User::factory()->create(['role' => 'MANAGER']);
         $this->manager2 = User::factory()->create(['role' => 'MANAGER']);
-        
+
         $this->employee1 = User::factory()->create([
             'role' => 'EMPLOYEE',
             'manager_id' => $this->manager1->id,
         ]);
-        
+
         $this->employee2 = User::factory()->create([
             'role' => 'EMPLOYEE',
             'manager_id' => $this->manager2->id,
@@ -37,14 +36,14 @@ class TaskAssignmentTest extends TestCase
             'title' => 'Test Task',
             'description' => 'Test task description',
             'priority' => 'High',
-            'due_date' => '2026-09-30'
+            'due_date' => '2026-09-30',
         ]);
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('mis_tasks', [
             'manager_id' => $this->manager1->id,
             'employee_id' => $this->employee1->id,
-            'title' => 'Test Task'
+            'title' => 'Test Task',
         ]);
     }
 
@@ -55,7 +54,7 @@ class TaskAssignmentTest extends TestCase
             'title' => 'Test Task',
             'description' => 'Test task description',
             'priority' => 'High',
-            'due_date' => '2026-09-30'
+            'due_date' => '2026-09-30',
         ]);
 
         $response->assertStatus(403);
@@ -82,7 +81,7 @@ class TaskAssignmentTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);
-        $response->assertJsonPath('0.employee_id', $this->employee1->id);
+        $response->assertJsonPath('0.employeeName', $this->employee1->name);
     }
 
     public function test_employee1_updates_own_task_returns_200()
@@ -91,14 +90,14 @@ class TaskAssignmentTest extends TestCase
 
         $response = $this->actingAs($this->employee1)->putJson("/api/tasks/{$task->id}", [
             'status' => 'In Progress',
-            'progress' => 50
+            'progress' => 50,
         ]);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('mis_tasks', [
             'id' => $task->id,
             'status' => 'In Progress',
-            'progress' => 50
+            'progress' => 50,
         ]);
     }
 
@@ -108,7 +107,7 @@ class TaskAssignmentTest extends TestCase
 
         $response = $this->actingAs($this->employee1)->putJson("/api/tasks/{$task->id}", [
             'status' => 'In Progress',
-            'progress' => 50
+            'progress' => 50,
         ]);
 
         $response->assertStatus(403);
@@ -119,7 +118,7 @@ class TaskAssignmentTest extends TestCase
         $task = MisTask::factory()->create(['manager_id' => $this->manager1->id, 'employee_id' => $this->employee1->id]);
 
         $response = $this->actingAs($this->employee1)->putJson("/api/tasks/{$task->id}", [
-            'progress' => 150
+            'progress' => 150,
         ]);
 
         $response->assertStatus(422);
@@ -128,19 +127,19 @@ class TaskAssignmentTest extends TestCase
     public function test_employee_attempts_to_update_task_title()
     {
         $task = MisTask::factory()->create([
-            'manager_id' => $this->manager1->id, 
+            'manager_id' => $this->manager1->id,
             'employee_id' => $this->employee1->id,
-            'title' => 'Original Title'
+            'title' => 'Original Title',
         ]);
 
         $response = $this->actingAs($this->employee1)->putJson("/api/tasks/{$task->id}", [
-            'title' => 'Hacked Title'
+            'title' => 'Hacked Title',
         ]);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('mis_tasks', [
             'id' => $task->id,
-            'title' => 'Original Title'
+            'title' => 'Original Title',
         ]);
     }
 }
