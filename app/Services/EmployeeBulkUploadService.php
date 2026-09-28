@@ -67,8 +67,8 @@ class EmployeeBulkUploadService
             $roleInput = null;
             if (! empty($row['role'])) {
                 $roleInput = trim($row['role']);
-                if (strtolower($roleInput) === 'qa / tester' || strtolower($roleInput) === 'qa/tester') {
-                    $roleInput = 'QA / Tester';
+                if (strtolower($roleInput) === 'ui/ux designer' || strtolower($roleInput) === 'ui / ux designer') {
+                    $roleInput = 'UI/UX Designer';
                 } else {
                     $roleInput = ucwords(strtolower($roleInput));
                 }
@@ -88,8 +88,8 @@ class EmployeeBulkUploadService
                 'username' => 'required|string|unique:users,username',
                 'email' => 'required|email|unique:users,email',
                 'phone' => 'nullable|string',
-                'role' => 'required|string|in:Software Developer,Telecaller,Digital Marketing,QA / Tester,Other',
-                'branch' => 'required|string|in:Dindigul,Madurai,Chennai,Coimbatore,Other',
+                'role' => 'required|string|in:Development,Telecalling,Digital Marketing,UI/UX Designer',
+                'branch' => 'required|string|in:Dindigul,Gujiliamparai,Karur,Madurai',
                 'password' => 'required|string|min:6',
                 'confirm_password' => 'required|string|same:password',
             ], [
@@ -184,8 +184,8 @@ class EmployeeBulkUploadService
                 $roleInput = null;
                 if (! empty($row['role'])) {
                     $roleInput = trim($row['role']);
-                    if (strtolower($roleInput) === 'qa / tester' || strtolower($roleInput) === 'qa/tester') {
-                        $roleInput = 'QA / Tester';
+                    if (strtolower($roleInput) === 'ui/ux designer' || strtolower($roleInput) === 'ui / ux designer') {
+                        $roleInput = 'UI/UX Designer';
                     } else {
                         $roleInput = ucwords(strtolower($roleInput));
                     }

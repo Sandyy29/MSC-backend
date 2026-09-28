@@ -119,8 +119,8 @@ class UserController extends Controller
             'username' => 'required|string|unique:users,username',
             'email' => 'required|email|unique:users,email',
             'role' => 'required|in:MANAGER,EMPLOYEE',
-            'departmentRole' => 'nullable|string',
-            'branch' => 'nullable|string',
+            'departmentRole' => 'nullable|string|in:Development,Telecalling,Digital Marketing,UI/UX Designer',
+            'branch' => 'nullable|string|in:Dindigul,Gujiliamparai,Karur,Madurai',
             'password' => 'required_if:role,MANAGER|string|min:6',
         ]);
 

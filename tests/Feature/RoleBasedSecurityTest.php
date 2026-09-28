@@ -175,6 +175,7 @@ class RoleBasedSecurityTest extends TestCase
             'description' => 'Desc 1',
             'priority' => 'High',
             'due_date' => '2024-12-31',
+            'branch' => 'Madurai',
         ]);
         $response->assertStatus(403);
     }

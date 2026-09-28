@@ -55,6 +55,7 @@ class TaskAssignmentTest extends TestCase
             'description' => 'Test task description',
             'priority' => 'High',
             'due_date' => '2026-09-30',
+            'branch' => 'Madurai',
         ]);
 
         $response->assertStatus(403);

@@ -117,8 +117,8 @@ class ManagerEmployeeController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,'.$employee->id,
-            'department_role' => 'nullable|string',
-            'branch' => 'nullable|string',
+            'department_role' => 'nullable|string|in:Development,Telecalling,Digital Marketing,UI/UX Designer',
+            'branch' => 'nullable|string|in:Dindigul,Gujiliamparai,Karur,Madurai',
             'is_active' => 'sometimes|boolean',
         ]);
 
@@ -177,8 +177,8 @@ class ManagerEmployeeController extends Controller
             'username' => 'required|string|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:employee,EMPLOYEE',
-            'departmentRole' => 'nullable|string',
-            'branch' => 'nullable|string',
+            'departmentRole' => 'nullable|string|in:Development,Telecalling,Digital Marketing,UI/UX Designer',
+            'branch' => 'nullable|string|in:Dindigul,Gujiliamparai,Karur,Madurai',
         ]);
 
         $employee = User::create([
