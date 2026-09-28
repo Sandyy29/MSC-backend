@@ -59,11 +59,11 @@ class ManagerEmployeeApiTest extends TestCase
 
         $response = $this->actingAs($manager, 'sanctum')->putJson('/api/manager/employees/'.$employee->id, [
             'name' => 'Updated Name',
-            'department_role' => 'New Role',
+            'department_role' => 'Development',
         ]);
 
         $response->assertStatus(200);
-        $response->assertJsonFragment(['name' => 'Updated Name', 'department_role' => 'New Role']);
+        $response->assertJsonFragment(['name' => 'Updated Name', 'department_role' => 'Development']);
     }
 
     public function test_manager_cannot_change_employee_role_or_manager_id()

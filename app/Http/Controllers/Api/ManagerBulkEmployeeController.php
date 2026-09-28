@@ -144,7 +144,7 @@ class ManagerBulkEmployeeController extends Controller
             fputcsv($file, $columns);
 
             // Sample row
-            fputcsv($file, ['John Doe', 'johndoe1', 'john@example.com', '1234567890', 'Software Developer', 'Chennai', 'password123', 'password123']);
+            fputcsv($file, ['John Doe', 'johndoe1', 'john@example.com', '1234567890', 'Development', 'Madurai', 'password123', 'password123']);
             fclose($file);
         };
 
